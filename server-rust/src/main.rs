@@ -23,12 +23,6 @@ use types::{Answer, Game, Guess, Player, PlayerData, Result};
 type Games = Mutex<types::Games>;
 type Questions = Mutex<QuestionLookup>;
 
-// #[get("/")]
-// fn index() -> &'static str {
-//     // TODO: Is there some way to use StaticFiles from up here?
-//     "HTML"
-// }
-
 #[get("/heartbeat")]
 fn heartbeat() -> &'static str {
     "heartbeat"
