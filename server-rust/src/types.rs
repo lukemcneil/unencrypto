@@ -13,13 +13,9 @@ pub(crate) type Clues = [String; 3];
 pub(crate) enum Error {
     GameConflict,
     GameNotFound,
-    PlayerConflict,
-    PlayerNotFound,
-    RoundNotInStartState,
     RoundNotInCollectingCluesState,
     RoundNotInCollectingOwnTeamGuessesState,
     RoundNotInCollectingOtherTeamGuessesState,
-    GuessedPlayerNotFound,
     InvalidGuess,
 }
 
@@ -28,9 +24,6 @@ impl fmt::Display for Error {
         match self {
             Self::GameConflict => write!(f, "game conflict"),
             Self::GameNotFound => write!(f, "game not found"),
-            Self::PlayerConflict => write!(f, "player conflict"),
-            Self::PlayerNotFound => write!(f, "player not found"),
-            Self::RoundNotInStartState => write!(f, "round not in start state"),
             Self::RoundNotInCollectingCluesState => {
                 write!(f, "round not in collecting clues state")
             }
@@ -40,7 +33,6 @@ impl fmt::Display for Error {
             Self::RoundNotInCollectingOtherTeamGuessesState => {
                 write!(f, "round not in collecting other team guesses state")
             }
-            Self::GuessedPlayerNotFound => write!(f, "guessed player not found"),
             Self::InvalidGuess => write!(f, "invalid guess"),
         }
     }
@@ -64,9 +56,34 @@ impl BadRequest {
 }
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Hash, Clone)]
+pub(crate) struct CluesData {
+    /// The clues
+    pub(crate) clues: Clues,
+    /// The player
+    pub(crate) player: PlayerData,
+}
+
+#[derive(Deserialize, Serialize, PartialEq, Eq, Hash, Clone)]
+pub(crate) struct GuessData {
+    /// The guessed code
+    pub(crate) guess: Code,
+    /// The player
+    pub(crate) player: PlayerData,
+}
+
+#[derive(Deserialize, Serialize, PartialEq, Eq, Hash, Clone)]
 pub(crate) enum Team {
     Red,
     Blue,
+}
+
+impl Team {
+    fn other_team(&self) -> Self {
+        match self {
+            Team::Red => Team::Blue,
+            Team::Blue => Team::Red,
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Hash, Clone)]
@@ -77,6 +94,8 @@ pub(crate) enum Role {
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Hash, Clone)]
 pub(crate) struct PlayerData {
+    /// The player
+    pub(crate) player: Player,
     /// The team the player belongs to
     pub(crate) team: Team,
     /// The team the player belongs to
@@ -84,8 +103,8 @@ pub(crate) struct PlayerData {
 }
 
 impl PlayerData {
-    pub(crate) fn new(team: Team, role: Role) -> Self {
-        Self { team, role }
+    pub(crate) fn new(player: Player, team: Team, role: Role) -> Self {
+        Self { player, team, role }
     }
 }
 
@@ -97,7 +116,7 @@ pub(crate) enum RoundState {
     Complete,
 }
 
-#[derive(Clone, Deserialize, Serialize, Default)]
+#[derive(Clone, Deserialize, Serialize, Default, PartialEq, Eq, Hash)]
 pub(crate) struct Code([u8; 3]);
 
 #[derive(Clone, Deserialize, Serialize, Default)]
@@ -137,7 +156,7 @@ impl Code {
     }
 
     fn is_valid(&self) -> bool {
-        self.0.iter().all(|&x| x >= 1 && x <= 4)
+        self.0.iter().all(|&x| (1..=4).contains(&x))
             && self.0[0] != self.0[1]
             && self.0[1] != self.0[2]
             && self.0[2] != self.0[0]
@@ -168,7 +187,7 @@ impl Round {
         }
     }
 
-    fn get_team_round_mut(&self, team: Team) -> &mut OneTeamRound {
+    fn get_team_round_mut(&mut self, team: Team) -> &mut OneTeamRound {
         match team {
             Team::Red => &mut self.red_round,
             Team::Blue => &mut self.blue_round,
@@ -194,7 +213,8 @@ pub(crate) struct Score {
 
 impl Game {
     pub(crate) fn add_player(&mut self, player: Player, team: Team, role: Role) {
-        self.players.insert(player, PlayerData::new(team, role));
+        self.players
+            .insert(player.clone(), PlayerData::new(player, team, role));
     }
 
     pub(crate) fn remove_player(&mut self, player: Player) -> Result<()> {
@@ -242,7 +262,7 @@ impl Game {
         }
         // Add or replace the guess
         let round = self.current_round_mut();
-        let team_round = round.get_team_round_mut(team);
+        let team_round = round.get_team_round_mut(team.other_team());
         team_round.other_team_guess = Some(guess);
         Ok(())
     }

@@ -15,10 +15,9 @@ use rocket::{
 };
 use rocket_contrib::{json::Json, serve::StaticFiles};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use structopt::StructOpt;
-use types::{Answer, Game, Guess, Player, PlayerData, Result};
+use types::{CluesData, Game, GuessData, PlayerData, Result, Score};
 
 type Games = Mutex<types::Games>;
 type Questions = Mutex<QuestionLookup>;
@@ -29,15 +28,10 @@ fn heartbeat() -> &'static str {
 }
 
 #[put("/game/<game_id>", data = "<player>")]
-fn create_game(
-    game_id: String,
-    player: Json<PlayerData>,
-    games: State<Games>,
-    questions: State<Questions>,
-) -> Result<()> {
+fn create_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
     let player = player.into_inner();
-    games.create(game_id, player.player, questions.lock().get())
+    games.create(game_id, player.player, player.team, player.role)
 }
 
 #[post("/game/<game_id>", data = "<player>")]
@@ -45,7 +39,8 @@ fn join_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> 
     let mut games = games.lock();
     let game = games.get(&game_id)?;
     let player = player.into_inner();
-    game.add_player(player.player)
+    game.add_player(player.player, player.team, player.role);
+    Ok(())
 }
 
 #[get("/game/<game_id>")]
@@ -56,26 +51,31 @@ fn game(game_id: String, games: State<Games>) -> Result<Json<Game>> {
     Ok(Json(game.clone()))
 }
 
-#[post("/game/<game_id>/answer", data = "<answer>")]
-fn answer(game_id: String, answer: Json<Answer>, games: State<Games>) -> Result<()> {
+#[post("/game/<game_id>/clues", data = "<clues>")]
+fn clues(game_id: String, clues: Json<CluesData>, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
     let game = games.get(&game_id)?;
-    let answer = answer.into_inner();
-    game.answer(answer)
+    let clues = clues.into_inner();
+    game.give_clues(clues.clues, clues.player.team)?;
+    Ok(())
 }
 
-#[post("/game/<game_id>/guess", data = "<guess>")]
-fn guess(
-    game_id: String,
-    guess: Json<Guess>,
-    games: State<Games>,
-    questions: State<Questions>,
-) -> Result<()> {
+#[post("/game/<game_id>/guess_own_team", data = "<guess>")]
+fn guess_own_team(game_id: String, guess: Json<GuessData>, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
     let game = games.get(&game_id)?;
     let guess = guess.into_inner();
-    game.guess(guess)?;
-    game.add_round_if_complete(questions.lock().get());
+    game.guess_own_team(guess.guess, guess.player.team)?;
+    Ok(())
+}
+
+#[post("/game/<game_id>/guess_other_team", data = "<guess>")]
+fn guess_other_team(game_id: String, guess: Json<GuessData>, games: State<Games>) -> Result<()> {
+    let mut games = games.lock();
+    let game = games.get(&game_id)?;
+    let guess = guess.into_inner();
+    game.guess_other_team(guess.guess, guess.player.team)?;
+    game.add_round_if_complete();
     Ok(())
 }
 
@@ -88,13 +88,14 @@ fn exit_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> 
 }
 
 #[delete("/game/<game_id>")]
-fn delete_game(game_id: String, games: State<Games>) {
+fn delete_game(game_id: String, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
-    games.delete(&game_id)
+    games.delete(&game_id);
+    Ok(())
 }
 
 #[get("/game/<game_id>/score")]
-fn get_score(game_id: String, games: State<Games>) -> Result<Json<HashMap<Player, i32>>> {
+fn get_score(game_id: String, games: State<Games>) -> Result<Json<Score>> {
     let mut games = games.lock();
     let game = games.get(&game_id)?.clone();
     Ok(Json(game.get_score()))
@@ -142,8 +143,9 @@ fn rocket(opt: Option<Opt>) -> rocket::Rocket {
                 create_game,
                 join_game,
                 game,
-                answer,
-                guess,
+                clues,
+                guess_own_team,
+                guess_other_team,
                 exit_game,
                 delete_game,
                 get_score,

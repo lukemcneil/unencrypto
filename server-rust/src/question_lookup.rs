@@ -1,11 +1,10 @@
-use rand::seq::SliceRandom;
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
     path::Path,
 };
 
-const DEFAULT_QUESTION: &str = "Answer the question you would have liked to be asked?";
+// const DEFAULT_QUESTION: &str = "Answer the question you would have liked to be asked?";
 
 #[derive(Default)]
 pub(crate) struct QuestionLookup {
@@ -22,10 +21,10 @@ impl QuestionLookup {
         Ok(())
     }
 
-    pub(crate) fn get(&self) -> String {
-        let mut rng = rand::thread_rng();
-        self.questions
-            .choose(&mut rng)
-            .map_or_else(|| String::from(DEFAULT_QUESTION), |q| q.clone())
-    }
+    // pub(crate) fn get(&self) -> String {
+    //     let mut rng = rand::thread_rng();
+    //     self.questions
+    //         .choose(&mut rng)
+    //         .map_or_else(|| String::from(DEFAULT_QUESTION), |q| q.clone())
+    // }
 }
