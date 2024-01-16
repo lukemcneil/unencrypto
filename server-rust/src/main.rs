@@ -1,12 +1,11 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-mod question_lookup;
 #[cfg(test)]
 mod tests;
 mod types;
+mod word_lookup;
 
 use parking_lot::Mutex;
-use question_lookup::QuestionLookup;
 use rocket::http::Method;
 use rocket::{
     self,
@@ -18,9 +17,10 @@ use rocket_cors::{AllowedOrigins, CorsOptions};
 use std::path::PathBuf;
 use structopt::StructOpt;
 use types::{CluesData, Game, GuessData, PlayerData, Result, Score};
+use word_lookup::WordLookup;
 
 type Games = Mutex<types::Games>;
-type Questions = Mutex<QuestionLookup>;
+type Words = Mutex<WordLookup>;
 
 #[get("/heartbeat")]
 fn heartbeat() -> &'static str {
@@ -28,10 +28,21 @@ fn heartbeat() -> &'static str {
 }
 
 #[put("/game/<game_id>", data = "<player>")]
-fn create_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> Result<()> {
+fn create_game(
+    game_id: String,
+    player: Json<PlayerData>,
+    games: State<Games>,
+    words: State<Words>,
+) -> Result<()> {
     let mut games = games.lock();
     let player = player.into_inner();
-    games.create(game_id, player.player, player.team, player.role)
+    games.create(
+        game_id,
+        player.player,
+        player.team,
+        player.role,
+        &mut words.lock(),
+    )
 }
 
 #[post("/game/<game_id>", data = "<player>")]
@@ -102,12 +113,12 @@ fn get_score(game_id: String, games: State<Games>) -> Result<Json<Score>> {
 }
 
 fn rocket(opt: Option<Opt>) -> rocket::Rocket {
-    let mut questions = QuestionLookup::default();
+    let mut words = WordLookup::default();
     let rocket = if let Some(opt) = opt {
-        if let Some(questions_file) = opt.questions_file {
-            // Populate the questions
-            if let Err(e) = questions.populate_from_file(&questions_file) {
-                eprintln!("Failed to populate questions from file {questions_file:?}, err: {e}");
+        if let Some(words_file) = opt.words_file {
+            // Populate the words
+            if let Err(e) = words.populate_from_file(&words_file) {
+                eprintln!("Failed to populate words from file {words_file:?}, err: {e}");
                 std::process::exit(1);
             }
         }
@@ -151,15 +162,15 @@ fn rocket(opt: Option<Opt>) -> rocket::Rocket {
                 get_score,
             ],
         )
-        .manage(Mutex::new(questions))
+        .manage(Mutex::new(words))
         .manage(Games::default())
 }
 
 #[derive(Debug, StructOpt)]
 struct Opt {
-    /// The path to a file containing newline delimited questions.
-    #[structopt(long = "questions-file")]
-    questions_file: Option<PathBuf>,
+    /// The path to a file containing newline delimited words.
+    #[structopt(long = "words-file")]
+    words_file: Option<PathBuf>,
     /// An IP address or host the application will listen on.
     #[structopt(long = "host", short = "H", default_value = "0.0.0.0")]
     host: String,

@@ -216,6 +216,8 @@ fn test_get_score() {
                 "role": "Decryptor"
             }
         },
+        "red_words": ["a", "b", "c", "d"],
+        "blue_words": ["e", "f", "g", "h"],
         "rounds": [
             {
                 "red_round": {

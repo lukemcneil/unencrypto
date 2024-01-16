@@ -4,6 +4,8 @@ use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, error, fmt};
 
+use crate::word_lookup::WordLookup;
+
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 pub(crate) type Player = String;
 pub(crate) type GameId = String;
@@ -199,6 +201,10 @@ impl Round {
 pub(crate) struct Game {
     /// The list of players in the game
     pub(crate) players: HashMap<Player, PlayerData>,
+    /// Red words
+    pub(crate) red_words: [String; 4],
+    /// Blue words
+    pub(crate) blue_words: [String; 4],
     /// The list of rounds in the game with the most recent round being the last item in the list
     pub(crate) rounds: Vec<Round>,
 }
@@ -212,6 +218,14 @@ pub(crate) struct Score {
 }
 
 impl Game {
+    pub(crate) fn new(words: &mut WordLookup) -> Self {
+        Self {
+            red_words: [words.get(), words.get(), words.get(), words.get()],
+            blue_words: [words.get(), words.get(), words.get(), words.get()],
+            ..Default::default()
+        }
+    }
+
     pub(crate) fn add_player(&mut self, player: Player, team: Team, role: Role) {
         self.players
             .insert(player.clone(), PlayerData::new(player, team, role));
@@ -326,11 +340,12 @@ impl Games {
         initial_player: Player,
         team: Team,
         role: Role,
+        words: &mut WordLookup,
     ) -> Result<()> {
         if self.0.contains_key(&game_id) {
             Err(Error::GameConflict)
         } else {
-            let mut game = Game::default();
+            let mut game = Game::new(words);
             game.add_round();
             game.add_player(initial_player, team, role);
             self.0.insert(game_id, game);
