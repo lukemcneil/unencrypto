@@ -203,7 +203,7 @@ pub(crate) struct Game {
     pub(crate) rounds: Vec<Round>,
 }
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize, PartialEq, Eq, Debug)]
 pub(crate) struct Score {
     pub(crate) red_interceptions: u8,
     pub(crate) blue_interceptions: u8,
@@ -293,8 +293,25 @@ impl Game {
     }
 
     pub fn get_score(&self) -> Score {
-        // TODO: implement
-        Score::default()
+        let mut scores = Score::default();
+        for round in &self.rounds {
+            if round.state() != RoundState::Complete {
+                continue;
+            }
+            if round.red_round.code != round.red_round.own_team_guess.clone().unwrap() {
+                scores.red_miscommunications += 1;
+            }
+            if round.red_round.code == round.red_round.other_team_guess.clone().unwrap() {
+                scores.blue_interceptions += 1;
+            }
+            if round.blue_round.code != round.blue_round.own_team_guess.clone().unwrap() {
+                scores.blue_miscommunications += 1;
+            }
+            if round.blue_round.code == round.blue_round.other_team_guess.clone().unwrap() {
+                scores.red_interceptions += 1;
+            }
+        }
+        scores
     }
 }
 
