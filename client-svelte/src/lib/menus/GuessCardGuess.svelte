@@ -1,6 +1,8 @@
 <script lang="ts">
 	import InputField from '$lib/InputField.svelte';
 
+	export let name: string | null;
+	export let game_name: string | null;
 	export let team: string | null;
 	export let role: string | null;
 
@@ -12,7 +14,7 @@
 	export let blue_guesses: Array<string> = [];
 	export let blue_correct: Array<number> = [];
 </script>
-
+ 
 {#each [0, 1, 2] as i}
 	{#if team == 'Red'}
 		{#if role == 'Encryptor'}
