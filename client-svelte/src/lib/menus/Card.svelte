@@ -33,9 +33,9 @@
 	}
 
 	function updateRoundState() {
-		if (round_state == 'clues' && red_clues != null && blue_clues != null) {
+		if (red_clues != null && blue_clues != null) {
 			setRoundState('guess');
-		} else if (round_state == 'guess') {
+		} else {
 			setRoundState('clues')
 		}
 	}

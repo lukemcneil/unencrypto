@@ -56,3 +56,7 @@
 		</tr>
 	{/if}
 {/each}
+
+<style>
+	@import 'GuessCard.css';
+</style>
