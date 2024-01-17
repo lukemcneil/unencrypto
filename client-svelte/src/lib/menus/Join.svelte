@@ -7,8 +7,8 @@
 	let name: string;
 	let game_name: string;
 
-	let team_color: String;
-	let role: String;
+	let team_color: string;
+	let role: string;
 
 	async function onClickCreateGame() {
 		if (name == '') {
@@ -17,11 +17,13 @@
 		if (game_name == '') {
 			return;
 		}
-		const response: Promise<Response> = putCreateGame(game_name, name);
+		const response: Promise<Response> = putCreateGame(game_name, name, team_color, role);
 		response.then((response) => {
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
+				localStorage.setItem('team_color', team_color);
+				localStorage.setItem('role', role);
 				setGameState('answer');
 			}
 		});
@@ -34,11 +36,13 @@
 		if (game_name == '') {
 			return;
 		}
-		const response: Promise<Response> = postJoinGame(game_name, name);
+		const response: Promise<Response> = postJoinGame(game_name, name, team_color, role);
 		response.then((response) => {
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
+				localStorage.setItem('team_color', team_color);
+				localStorage.setItem('role', role);
 				setGameState('answer');
 			}
 		});
@@ -79,12 +83,12 @@
 	<h3>Choose Role</h3>
 	<div>
 		<label>
-			<input type="radio" bind:group={team_color} value={'Encryptor'} />
+			<input type="radio" bind:group={role} value={'Encryptor'} />
 			Encryptor
 		</label>
 
 		<label>
-			<input type="radio" bind:group={team_color} value={'Decryptor'} />
+			<input type="radio" bind:group={role} value={'Decryptor'} />
 			Decryptor
 		</label>
 	</div>

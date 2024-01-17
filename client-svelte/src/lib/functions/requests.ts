@@ -4,23 +4,27 @@ function getBaseServerPath(): string | null {
 	return localStorage.getItem('base_server_path');
 }
 
-export async function putCreateGame(game_name: string, name: string) {
+export async function putCreateGame(game_name: string, name: string, team: string, role: string) {
 	const response: Response = await fetch(localStorage.getItem('base_server_path') + game_name, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
-			player: name
+			player: name,
+			team: team,
+			role: role
 		})
 	});
 	return response;
 }
 
-export async function postJoinGame(game_name: string, name: string) {
+export async function postJoinGame(game_name: string, name: string, team: string, role: string) {
 	const request = await fetch(localStorage.getItem('base_server_path') + game_name, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
-			player: name
+			player: name,
+			team: team,
+			role: role
 		})
 	});
 	return request;
@@ -60,7 +64,7 @@ export async function deletePlayerFromGame(game_name: string | null, name: strin
 export async function deleteGame(game_name: string | null) {
 	const response: Response = await fetch(getBaseServerPath() + game_name, {
 		method: 'DELETE',
-		headers: { 'Content-Type': 'application/json' },
+		headers: { 'Content-Type': 'application/json' }
 	});
 	return response;
 }
@@ -95,7 +99,7 @@ export async function postChatGptQuestion(game_name: string | null, prompt: stri
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
-			'prompt': prompt
+			prompt: prompt
 		})
 	});
 	return response;
