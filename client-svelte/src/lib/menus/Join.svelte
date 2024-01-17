@@ -22,9 +22,9 @@
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
-				localStorage.setItem('team_color', team_color);
+				localStorage.setItem('team', team_color);
 				localStorage.setItem('role', role);
-				setGameState('answer');
+				setGameState('card');
 			}
 		});
 	}
@@ -41,9 +41,9 @@
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
-				localStorage.setItem('team_color', team_color);
+				localStorage.setItem('team', team_color);
 				localStorage.setItem('role', role);
-				setGameState('answer');
+				setGameState('card');
 			}
 		});
 	}

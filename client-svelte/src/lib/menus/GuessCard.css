@@ -1,0 +1,25 @@
+table,
+th,
+tr,
+td {
+    border: 1px solid black;
+}
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+td {
+    padding: 10px;
+    width: 10px;
+    height: 20px;
+}
+.team_purple {
+    background-color: purple;
+}
+.team_orange {
+    background-color: orange;
+}
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}

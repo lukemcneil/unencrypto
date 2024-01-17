@@ -3,7 +3,7 @@
 	import InputField from '$lib/InputField.svelte';
 	import { Player } from '$lib/datatypes/player';
 	import { onMount } from 'svelte';
-	import { getGame, postAnswer } from '$lib/functions/requests';
+	import { getGame } from '$lib/functions/requests';
 	import { sleep } from '$lib/functions/helper';
 
 	export let setGameState: (new_state: string) => void;

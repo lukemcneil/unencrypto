@@ -1,4 +1,5 @@
 import type { Guess } from '$lib/datatypes/guess';
+import type { PlayerData } from '$lib/datatypes/playerdata';
 
 function getBaseServerPath(): string | null {
 	return localStorage.getItem('base_server_path');
@@ -38,13 +39,13 @@ export async function getGame(game_name: string | null) {
 	return response;
 }
 
-export async function postAnswer(game_name: string | null, name: string | null, answer: string) {
-	const response: Response = await fetch(getBaseServerPath() + game_name + '/answer', {
+export async function postClues(game_name: string | null, playerData: PlayerData, clues: Array<string>) {
+	const response: Response = await fetch(getBaseServerPath() + game_name + '/clues', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
-			player: name,
-			answer: answer
+			clues: clues,
+			player: playerData, 
 		})
 	});
 	return response;

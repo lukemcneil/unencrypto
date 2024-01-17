@@ -83,11 +83,13 @@
 <main>
 	{#if game_state == 'join'}
 		<Join {setGameState} />
-	{:else if game_state == 'answer'}
+	{:else if game_state == 'card'}
 		<Card
 			{setGameState}
 			name={localStorage.getItem('name')}
 			game_name={localStorage.getItem('game_name')}
+			team={localStorage.getItem('team')}
+			role={localStorage.getItem('role')}
 		/>
 	{:else if game_state == 'answer'}
 		<Answer
