@@ -6,6 +6,7 @@
 	import Guess from '$lib/menus/Guess.svelte';
 	import GuessWait from '$lib/menus/GuessWait.svelte';
 	import Results from '$lib/menus/Results.svelte';
+	import Card from '$lib/menus/Card.svelte';
 
 	import { deleteGame, deletePlayerFromGame, getGame } from '$lib/functions/requests';
 	import Button from '$lib/Button.svelte';
@@ -82,6 +83,12 @@
 <main>
 	{#if game_state == 'join'}
 		<Join {setGameState} />
+	{:else if game_state == 'answer'}
+		<Card
+			{setGameState}
+			name={localStorage.getItem('name')}
+			game_name={localStorage.getItem('game_name')}
+		/>
 	{:else if game_state == 'answer'}
 		<Answer
 			{setGameState}

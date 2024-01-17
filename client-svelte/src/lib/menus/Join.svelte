@@ -7,18 +7,14 @@
 	let name: string;
 	let game_name: string;
 
-	let error_message: string = '';
-	let no_name_error_message = 'no name';
-	let no_game_room_error_message = 'no game room name';
-	let game_already_exists_error_message = 'this game already exists';
+	let team_color: String;
+	let role: String;
 
 	async function onClickCreateGame() {
 		if (name == '') {
-			error_message = no_name_error_message;
 			return;
 		}
 		if (game_name == '') {
-			error_message = no_game_room_error_message;
 			return;
 		}
 		const response: Promise<Response> = putCreateGame(game_name, name);
@@ -27,22 +23,15 @@
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
 				setGameState('answer');
-			} else {
-				if (response.status == 409) {
-					error_message = game_already_exists_error_message;
-				}
-				error_message = 'some other error when making a game';
 			}
 		});
 	}
 
 	async function onClickJoinGame() {
 		if (name == '') {
-			error_message = no_name_error_message;
 			return;
 		}
 		if (game_name == '') {
-			error_message = no_game_room_error_message;
 			return;
 		}
 		const response: Promise<Response> = postJoinGame(game_name, name);
@@ -57,7 +46,7 @@
 </script>
 
 <main>
-	<h1>Weighty Inquiries</h1>
+	<h1>Unencrypto</h1>
 	<div>
 		<InputField bind:value={name} text="enter your name" />
 	</div>
@@ -74,8 +63,30 @@
 		<Button text="Create Game" onClick={onClickCreateGame} />
 	</div>
 
+	<h3>Choose Team Color</h3>
 	<div>
-		{error_message}
+		<label>
+			<input type="radio" bind:group={team_color} value={'Red'} />
+			Red Team
+		</label>
+
+		<label>
+			<input type="radio" bind:group={team_color} value={'Blue'} />
+			Blue Team
+		</label>
+	</div>
+
+	<h3>Choose Role</h3>
+	<div>
+		<label>
+			<input type="radio" bind:group={team_color} value={'Encryptor'} />
+			Encryptor
+		</label>
+
+		<label>
+			<input type="radio" bind:group={team_color} value={'Decryptor'} />
+			Decryptor
+		</label>
 	</div>
 </main>
 
