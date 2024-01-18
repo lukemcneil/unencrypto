@@ -66,7 +66,7 @@
 						{team_round.own_team_guess ? team_round.own_team_guess[i] : ''}
 					{/if}
 				</td>
-				<td>{role == 'Encryptor' || !is_active_round ? c : '?'}</td>
+				<td>{role == 'Encryptor' || state == 'done' || !is_active_round ? c : '?'}</td>
 			</tr>
 		{/each}
 		{#if state == 'clues' && role == 'Encryptor'}

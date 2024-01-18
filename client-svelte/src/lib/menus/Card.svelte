@@ -96,19 +96,6 @@
 </script>
 
 <main>
-	<h2>Players</h2>
-	{#each players as player}
-		<div class={player.team}>
-			{player.player}: {player.role}
-		</div>
-	{/each}
-
-	<h2>Words</h2>
-	<div>
-		{#each cards as card}
-			{card} &emsp;
-		{/each}
-	</div>
 	<div>
 		{#if game}
 			{#each game.rounds as round, i}
@@ -133,6 +120,18 @@
 			{/each}
 		{/if}
 	</div>
+	<h2>Words</h2>
+	<div>
+		{#each cards as card}
+			{card} &emsp;
+		{/each}
+	</div>
+	<h2>Players</h2>
+	{#each players as player}
+		<div class={player.team}>
+			{player.player}: {player.role}
+		</div>
+	{/each}
 </main>
 
 <style>

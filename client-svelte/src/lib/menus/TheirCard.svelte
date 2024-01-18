@@ -21,7 +21,7 @@
 			return 'clues';
 		} else if (!team_round.own_team_guess) {
 			return 'guess';
-		} else if (!other_team_round.other_team_guess) {
+		} else if (!other_team_round.other_team_guess && other_team_round.clues) {
 			return 'guess_other';
 		} else {
 			return 'done';
@@ -56,13 +56,16 @@
 						{other_team_round.other_team_guess ? other_team_round.other_team_guess[i] : ''}
 					{/if}
 				</td>
-				<td>{!is_active_round ? c : '?'}</td>
+				<td>{!is_active_round || state == 'done' ? c : '?'}</td>
 			</tr>
 		{/each}
 		{#if state == 'guess_other'}
 			<Button text={'Submit Guess'} onClick={onSubmitGuessOther} />
 		{/if}
 	</table>
+	{#if state == 'done' && is_active_round}
+		<h3>Waiting for other team</h3>
+	{/if}
 {/if}
 
 <style>

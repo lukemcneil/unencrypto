@@ -183,20 +183,33 @@ impl Round {
         }
     }
 
-    fn state(&self) -> RoundState {
-        if self.red_round.clues.is_none() || self.blue_round.clues.is_none() {
+    fn state_for_team(&self, team: &Team) -> RoundState {
+        let team_round = match team {
+            Team::Red => &self.red_round,
+            Team::Blue => &self.blue_round,
+        };
+        let other_team_round = match team {
+            Team::Red => &self.blue_round,
+            Team::Blue => &self.red_round,
+        };
+        if team_round.clues.is_none() {
             RoundState::CollectingClues
-        } else if self.red_round.own_team_guess.is_none()
-            || self.blue_round.own_team_guess.is_none()
-        {
+        } else if team_round.own_team_guess.is_none() {
             RoundState::CollectingOwnTeamGuesses
-        } else if self.red_round.other_team_guess.is_none()
-            || self.blue_round.other_team_guess.is_none()
-        {
+        } else if other_team_round.other_team_guess.is_none() && other_team_round.clues.is_some() {
             RoundState::CollectingOtherTeamGuesses
         } else {
             RoundState::Complete
         }
+    }
+
+    fn is_complete(&self) -> bool {
+        self.red_round.clues.is_some()
+            && self.blue_round.clues.is_some()
+            && self.red_round.own_team_guess.is_some()
+            && self.blue_round.own_team_guess.is_some()
+            && self.red_round.other_team_guess.is_some()
+            && self.blue_round.other_team_guess.is_some()
     }
 
     fn get_team_round_mut(&mut self, team: Team) -> &mut OneTeamRound {
@@ -248,8 +261,7 @@ impl Game {
 
     pub(crate) fn give_clues(&mut self, clues: Clues, team: Team) -> Result<()> {
         // Confirm we are collecting clues for the current round
-        let state = self.current_round_state();
-        if state != RoundState::CollectingClues {
+        if self.current_round_state_for_team(&team) != RoundState::CollectingClues {
             return Err(Error::RoundNotInCollectingCluesState);
         }
         if !clues.is_valid() {
@@ -264,7 +276,7 @@ impl Game {
 
     pub(crate) fn guess_own_team(&mut self, guess: Code, team: Team) -> Result<()> {
         // Confirm we are collecting guesses for the current round
-        if self.current_round_state() != RoundState::CollectingOwnTeamGuesses {
+        if self.current_round_state_for_team(&team) != RoundState::CollectingOwnTeamGuesses {
             return Err(Error::RoundNotInCollectingOwnTeamGuessesState);
         }
         // Confirm the guess is a valid code
@@ -280,7 +292,7 @@ impl Game {
 
     pub(crate) fn guess_other_team(&mut self, guess: Code, team: Team) -> Result<()> {
         // Confirm we are collecting guesses for the current round
-        if self.current_round_state() != RoundState::CollectingOtherTeamGuesses {
+        if self.current_round_state_for_team(&team) != RoundState::CollectingOtherTeamGuesses {
             return Err(Error::RoundNotInCollectingOtherTeamGuessesState);
         }
         // Confirm the guess is a valid code
@@ -295,7 +307,7 @@ impl Game {
     }
 
     pub(crate) fn add_round_if_complete(&mut self) {
-        if self.current_round_state() == RoundState::Complete {
+        if self.current_round_complete() {
             self.add_round();
         }
     }
@@ -314,15 +326,20 @@ impl Game {
         &mut self.rounds[index]
     }
 
-    fn current_round_state(&self) -> RoundState {
+    fn current_round_state_for_team(&self, team: &Team) -> RoundState {
         let round = self.current_round();
-        round.state()
+        round.state_for_team(team)
+    }
+
+    fn current_round_complete(&self) -> bool {
+        let round = self.current_round();
+        round.is_complete()
     }
 
     pub fn get_score(&self) -> Score {
         let mut scores = Score::default();
         for round in &self.rounds {
-            if round.state() != RoundState::Complete {
+            if !round.is_complete() {
                 continue;
             }
             if round.red_round.code != round.red_round.own_team_guess.clone().unwrap() {
