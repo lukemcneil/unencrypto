@@ -82,7 +82,6 @@
 						their_round = data.rounds[round_count].red_round;
 					}
 
-					console.log(our_words);
 					game.rounds.forEach((round: Round) => {
 						if (team == 'Red') {
 							round.red_round.code?.forEach((key: number, i) => {
@@ -105,6 +104,8 @@
 							});
 						}
 					});
+					our_words = our_words;
+					their_words = their_words;
 
 					updateRoundState();
 				});
