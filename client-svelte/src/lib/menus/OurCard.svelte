@@ -44,7 +44,7 @@
 </script>
 
 {#if team_round}
-	<table class="{team}Card">
+	<table class="{team}Card center">
 		<tr>
 			<td>Clue</td>
 			<td>Our Guess</td>

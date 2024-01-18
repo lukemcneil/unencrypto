@@ -26,6 +26,18 @@
 	let our_round: OneTeamRound;
 	let their_round: OneTeamRound;
 	let scores: Score;
+	let our_words: Map<number, Array<String>> = new Map([
+		[1, []],
+		[2, []],
+		[3, []],
+		[4, []]
+	]);
+	let their_words: Map<number, Array<String>> = new Map([
+		[1, []],
+		[2, []],
+		[3, []],
+		[4, []]
+	]);
 
 	function setRoundState(new_state: string) {
 		localStorage.setItem('round_state', new_state);
@@ -37,6 +49,14 @@
 			setRoundState('guess');
 		} else {
 			setRoundState('clues');
+		}
+	}
+
+	function getOtherTeam(my_team: string | null) {
+		if (my_team == 'Red') {
+			return 'Blue';
+		} else {
+			return 'Red'
 		}
 	}
 
@@ -61,6 +81,30 @@
 						our_round = data.rounds[round_count].blue_round;
 						their_round = data.rounds[round_count].red_round;
 					}
+
+					console.log(our_words);
+					game.rounds.forEach((round: Round) => {
+						if (team == 'Red') {
+							round.red_round.code?.forEach((key: number, i) => {
+								console.log(key);
+								if (round.red_round.clues != null) {
+									our_words.get(key)?.push(round.red_round.clues[i]);
+								}
+								if (round.blue_round.clues != null) {
+									their_words.get(key)?.push(round.blue_round.clues[i]);
+								}
+							});
+						} else {
+							round.red_round.code?.forEach((key: number, i) => {
+								if (round.red_round.clues != null) {
+									their_words.get(key)?.push(round.red_round.clues[i]);
+								}
+								if (round.blue_round.clues != null) {
+									our_words.get(key)?.push(round.blue_round.clues[i]);
+								}
+							});
+						}
+					});
 
 					updateRoundState();
 				});
@@ -110,23 +154,25 @@
 		{#if game}
 			{#each game.rounds as round, i}
 				<h2>Round {i}</h2>
-				<OurCard
-					team={team || ''}
-					role={role || ''}
-					team_round={getOurRound(round)}
-					is_active_round={i == game.rounds.length - 1}
-					game_name={game_name || ''}
-					name={name || ''}
-				/>
-				<TheirCard
-					team={team || ''}
-					role={role || ''}
-					team_round={getOurRound(round)}
-					other_team_round={getTheirRound(round)}
-					is_active_round={i == game.rounds.length - 1}
-					game_name={game_name || ''}
-					name={name || ''}
-				/>
+				<div class="center">
+					<OurCard
+						team={team || ''}
+						role={role || ''}
+						team_round={getOurRound(round)}
+						is_active_round={i == game.rounds.length - 1}
+						game_name={game_name || ''}
+						name={name || ''}
+					/>
+					<TheirCard
+						team={team || ''}
+						role={role || ''}
+						team_round={getOurRound(round)}
+						other_team_round={getTheirRound(round)}
+						is_active_round={i == game.rounds.length - 1}
+						game_name={game_name || ''}
+						name={name || ''}
+					/>
+				</div>
 			{/each}
 		{/if}
 	</div>
@@ -138,9 +184,54 @@
 		{/each}
 	</div>
 
+	<div>
+		{#if game}
+			<div>
+				<table class="center">
+					<tr class='{team}Card'>
+						{#each cards as card}
+							<td>{card}</td>
+						{/each}
+					</tr>
+					{#each { length: round_count + 1 } as _, i}
+						<tr>
+							{#each [1, 2, 3, 4] as count}
+								<td>
+									{#if our_words.get(count) != undefined && our_words.get(count)?.length > i}
+										{our_words.get(count)[i]}
+									{/if}
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				</table>
+			</div>
+			<div>
+				<table class="center">
+					<tr class='{getOtherTeam(team)}Card'>
+						{#each cards as card}
+							<td>???</td>
+						{/each}
+					</tr>
+					{#each { length: round_count + 1 } as _, i}
+						<tr>
+							{#each [1, 2, 3, 4] as count}
+								<td>
+									{#if their_words.get(count) != undefined && their_words.get(count)?.length > i}
+										{their_words.get(count)[i]}
+									{/if}
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				</table>
+			</div>
+		{/if}
+	</div>
+
 	<h2>Scores</h2>
 	{#if game && scores}
-		<table class="RedCard">
+		<table class="RedCard center">
 			<tr>
 				<td>Interceptions</td>
 				<td>Miscommunications</td>
@@ -150,7 +241,7 @@
 				<td>{scores.red_miscommunications}</td>
 			</tr>
 		</table>
-		<table class="BlueCard">
+		<table class="BlueCard center">
 			<tr>
 				<td>Interceptions</td>
 				<td>Miscommunications</td>
