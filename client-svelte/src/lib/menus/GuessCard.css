@@ -13,11 +13,11 @@ td {
     width: 10px;
     height: 20px;
 }
-.team_purple {
-    background-color: purple;
+.RedCard {
+    background-color: lightcoral;
 }
-.team_orange {
-    background-color: orange;
+.BlueCard {
+    background-color: lightblue;
 }
 .center {
     margin-left: auto;

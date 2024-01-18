@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Button from '$lib/Button.svelte';
-	import InputField from '$lib/InputField.svelte';
-	import { Player } from '$lib/datatypes/player';
 	import { onMount } from 'svelte';
 	import { getGame } from '$lib/functions/requests';
 	import { sleep } from '$lib/functions/helper';
-	import GuessCardGuess from './GuessCardGuess.svelte';
-	import GuessCardClue from './GuessCardClue.svelte';
+	import OurCard from './OurCard.svelte';
+	import TheirCard from './TheirCard.svelte';
 	import type { PlayerData } from '$lib/datatypes/playerdata';
-	import PlayerList from '$lib/PlayerList.svelte';
+	import type { Game } from '$lib/datatypes/game';
+	import type { OneTeamRound } from '$lib/datatypes/one_team_round';
+	import { json } from '@sveltejs/kit';
+	import type { Round } from '$lib/datatypes/round';
 
 	let round_state: string | null;
 
@@ -21,11 +21,9 @@
 	let round_count: number;
 	let players: Array<PlayerData> = [];
 	let cards: Array<String> = [];
-	let red_code: Array<number> = [];
-	let blue_code: Array<number> = [];
-
-	let red_clues: Array<string> = [];
-	let blue_clues: Array<string> = [];
+	let game: Game;
+	let our_round: OneTeamRound;
+	let their_round: OneTeamRound;
 
 	function setRoundState(new_state: string) {
 		localStorage.setItem('round_state', new_state);
@@ -33,7 +31,7 @@
 	}
 
 	function updateRoundState() {
-		if (red_clues != null && blue_clues != null) {
+		if (our_round.clues != null && their_round.clues != null) {
 			setRoundState('guess');
 		} else {
 			setRoundState('clues');
@@ -44,23 +42,23 @@
 		getGame(game_name)
 			.then((response) => response.json())
 			.then((data) => {
-				round_count = data.rounds.length - 1;
+				game = data;
+				round_count = game.rounds.length - 1;
 
 				players = [];
-				for (var prop in data.players) {
+				for (var prop in game.players) {
 					players = [...players, data.players[prop] as PlayerData];
 				}
 
 				if (team == 'Red') {
 					cards = data.red_words;
+					our_round = data.rounds[round_count].red_round;
+					their_round = data.rounds[round_count].blue_round;
 				} else {
 					cards = data.blue_words;
+					our_round = data.rounds[round_count].blue_round;
+					their_round = data.rounds[round_count].red_round;
 				}
-				red_code = data.rounds[round_count].red_round.code;
-				blue_code = data.rounds[round_count].blue_round.code;
-
-				red_clues = data.rounds[round_count].red_round.clues;
-				blue_clues = data.rounds[round_count].blue_round.clues;
 
 				updateRoundState();
 			});
@@ -79,6 +77,22 @@
 		getGameLoop();
 		setRoundState('clues');
 	});
+
+	function getOurRound(round: Round): OneTeamRound {
+		if (team == 'Red') {
+			return round.red_round;
+		} else {
+			return round.blue_round;
+		}
+	}
+
+	function getTheirRound(round: Round): OneTeamRound {
+		if (team == 'Blue') {
+			return round.red_round;
+		} else {
+			return round.blue_round;
+		}
+	}
 </script>
 
 <main>
@@ -96,34 +110,23 @@
 		{/each}
 	</div>
 	<div>
-		<table class="center">
-			{#if round_state == 'clues'}
-				<GuessCardClue
-					{setRoundState}
-					{name}
-					{game_name}
-					{team}
-					{role}
-					red_correct={red_code}
-					blue_correct={blue_code}
+		{#if game}
+			{#each game.rounds as round, i}
+				Round {i}: {JSON.stringify(round)}
+				<OurCard
+					team={team || ''}
+					role={role || ''}
+					team_round={getOurRound(round)}
+					is_active_round={i == game.rounds.length - 1}
 				/>
-			{:else if round_state == 'guess'}
-				<GuessCardGuess
-					{setRoundState}
-					{name}
-					{game_name}
-					{team}
-					{role}
-					red_words={red_clues}
-					blue_words={blue_clues}
-					red_correct={red_code}
-					blue_correct={blue_code}
+				<TheirCard
+					team={team || ''}
+					role={role || ''}
+					team_round={getTheirRound(round)}
+					is_active_round={i == game.rounds.length - 1}
 				/>
-			{:else}
-				<!-- {console.log(round_state)} -->
-				tjoieaj
-			{/if}
-		</table>
+			{/each}
+		{/if}
 	</div>
 </main>
 

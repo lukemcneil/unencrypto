@@ -1,13 +1,6 @@
-import { Player } from "./player"
-import { Answer } from "./answer"
-import { Guess } from "./guess"
+import type { OneTeamRound } from "./one_team_round";
 
 export class Round {
-    question: string | undefined;
-    answers: Array<Answer> = [];
-    guesses: Array<Guess> = [];
-
-    constructor(question: string) {
-        this.question = question;
-    }
+    red_round!: OneTeamRound;
+    blue_round!: OneTeamRound;
 }
