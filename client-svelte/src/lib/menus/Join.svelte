@@ -7,8 +7,8 @@
 	let name: string;
 	let game_name: string;
 
-	let team_color: string;
-	let role: string;
+	let team_color: string = 'Red';
+	let role: string = 'Encryptor';
 
 	async function onClickCreateGame() {
 		if (name == '') {

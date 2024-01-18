@@ -39,7 +39,7 @@
 				if (!response.ok) {
 					setGameState('join');
 				}
-			}) 
+			});
 		}
 	});
 
@@ -114,9 +114,7 @@
 			game_name={localStorage.getItem('game_name')}
 		/>
 	{/if}
-	<div style="padding: 50px;">
-
-	</div>
+	<div style="padding: 50px;"></div>
 	{#if game_state == 'answer'}
 		<div>
 			<Button text="Leave Game" onClick={onLeave} />

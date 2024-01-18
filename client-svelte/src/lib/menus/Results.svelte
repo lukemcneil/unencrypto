@@ -13,7 +13,7 @@
 	let question: string;
 	let answers: Array<Answer> = [];
 	let correct_answer_map: Map<string, string> = new Map();
-    let my_answer: string;
+	let my_answer: string;
 	let my_guess: Array<Answer> = [];
 	let my_guess_map: Map<string, string> = new Map();
 	let score_map: Map<string, number> = new Map();
@@ -30,7 +30,7 @@
 					score_map.set(prop, data[prop]);
 				}
 				score_map = new Map([...score_map.entries()].sort((a, b) => b[1] - a[1]));
-                console.log(score_map)
+				// console.log(score_map)
 			});
 	}
 
@@ -43,7 +43,7 @@
 				answers.forEach((answer: Answer) => {
 					correct_answer_map.set(answer.player, answer.answer);
 				});
-                my_answer = correct_answer_map.get(name);
+				my_answer = correct_answer_map.get(name);
 
 				data.rounds[data.rounds.length - 2].guesses.forEach((guess: Guess) => {
 					if (guess.player == name) {

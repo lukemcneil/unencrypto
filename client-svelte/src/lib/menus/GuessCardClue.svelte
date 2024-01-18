@@ -10,7 +10,6 @@
 	export let team: string;
 	export let role: string;
 
-
 	export let red_words: Array<string> = [];
 	export let red_correct: Array<number> = [];
 
@@ -79,7 +78,7 @@
 	{/if}
 {/each}
 
-{#if (role = 'Encryptor')}
+{#if role == 'Encryptor'}
 	<Button text={'Submit Clues'} onClick={onSubmitClues} />
 {/if}
 

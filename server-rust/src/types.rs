@@ -9,7 +9,6 @@ use crate::word_lookup::WordLookup;
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 pub(crate) type Player = String;
 pub(crate) type GameId = String;
-pub(crate) type Clues = [String; 3];
 
 #[derive(Serialize, Debug)]
 pub(crate) enum Error {
@@ -19,6 +18,7 @@ pub(crate) enum Error {
     RoundNotInCollectingOwnTeamGuessesState,
     RoundNotInCollectingOtherTeamGuessesState,
     InvalidGuess,
+    InvalidClues,
 }
 
 impl fmt::Display for Error {
@@ -36,6 +36,7 @@ impl fmt::Display for Error {
                 write!(f, "round not in collecting other team guesses state")
             }
             Self::InvalidGuess => write!(f, "invalid guess"),
+            Self::InvalidClues => write!(f, "invalid clues"),
         }
     }
 }
@@ -120,6 +121,15 @@ pub(crate) enum RoundState {
 
 #[derive(Clone, Deserialize, Serialize, Default, PartialEq, Eq, Hash)]
 pub(crate) struct Code([u8; 3]);
+
+#[derive(Clone, Deserialize, Serialize, Default, PartialEq, Eq, Hash)]
+pub(crate) struct Clues([String; 3]);
+
+impl Clues {
+    fn is_valid(&self) -> bool {
+        !self.0[0].is_empty() && !self.0[1].is_empty() && !self.0[2].is_empty()
+    }
+}
 
 #[derive(Clone, Deserialize, Serialize, Default)]
 pub(crate) struct OneTeamRound {
@@ -241,6 +251,9 @@ impl Game {
         let state = self.current_round_state();
         if state != RoundState::CollectingClues {
             return Err(Error::RoundNotInCollectingCluesState);
+        }
+        if !clues.is_valid() {
+            return Err(Error::InvalidClues);
         }
         // Add or replace the clues
         let round = self.current_round_mut();

@@ -21,7 +21,6 @@
 				players = data.players;
 				current_question = data.rounds[data.rounds.length - 1].question;
 				round_count = data.rounds.length;
-				console.log(data);
 				if (data.rounds[data.rounds.length - 1].answers.length == players.length) {
 					setGameState('guess');
 				} else {
@@ -31,7 +30,6 @@
 								(answer) => answer.player === player
 							)
 					);
-					console.log(waiting_for);
 				}
 			});
 	}

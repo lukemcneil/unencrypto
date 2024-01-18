@@ -36,7 +36,7 @@
 		if (red_clues != null && blue_clues != null) {
 			setRoundState('guess');
 		} else {
-			setRoundState('clues')
+			setRoundState('clues');
 		}
 	}
 
@@ -44,7 +44,6 @@
 		getGame(game_name)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
 				round_count = data.rounds.length - 1;
 
 				players = [];
@@ -93,13 +92,14 @@
 	{/each}
 	<div>
 		{#each cards as card}
-			{card}
+			{card} &emsp;
 		{/each}
 	</div>
 	<div>
 		<table class="center">
 			{#if round_state == 'clues'}
 				<GuessCardClue
+					{setRoundState}
 					{name}
 					{game_name}
 					{team}
@@ -109,6 +109,7 @@
 				/>
 			{:else if round_state == 'guess'}
 				<GuessCardGuess
+					{setRoundState}
 					{name}
 					{game_name}
 					{team}
@@ -119,8 +120,8 @@
 					blue_correct={blue_code}
 				/>
 			{:else}
-			{console.log(round_state)}
-			tjoieaj
+				<!-- {console.log(round_state)} -->
+				tjoieaj
 			{/if}
 		</table>
 	</div>
