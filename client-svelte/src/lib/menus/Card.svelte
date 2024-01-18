@@ -96,14 +96,14 @@
 </script>
 
 <main>
-	<h2>
-		Round: {round_count}
-	</h2>
+	<h2>Players</h2>
 	{#each players as player}
 		<div class={player.team}>
 			{player.player}: {player.role}
 		</div>
 	{/each}
+
+	<h2>Words</h2>
 	<div>
 		{#each cards as card}
 			{card} &emsp;
@@ -112,18 +112,23 @@
 	<div>
 		{#if game}
 			{#each game.rounds as round, i}
-				Round {i}: {JSON.stringify(round)}
+				<h2>Round {i}</h2>
 				<OurCard
 					team={team || ''}
 					role={role || ''}
 					team_round={getOurRound(round)}
 					is_active_round={i == game.rounds.length - 1}
+					game_name={game_name || ''}
+					name={name || ''}
 				/>
 				<TheirCard
 					team={team || ''}
 					role={role || ''}
-					team_round={getTheirRound(round)}
+					team_round={getOurRound(round)}
+					other_team_round={getTheirRound(round)}
 					is_active_round={i == game.rounds.length - 1}
+					game_name={game_name || ''}
+					name={name || ''}
 				/>
 			{/each}
 		{/if}

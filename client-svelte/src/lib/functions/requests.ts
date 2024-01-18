@@ -45,7 +45,7 @@ export async function postClues(game_name: string | null, playerData: PlayerData
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			clues: clues,
-			player: playerData, 
+			player: playerData,
 		})
 	});
 	return response;
@@ -70,11 +70,26 @@ export async function deleteGame(game_name: string | null) {
 	return response;
 }
 
-export async function postGuess(game_name: string | null, guess: Guess) {
-	const response: Response = await fetch(getBaseServerPath() + game_name + '/guess', {
+export async function postGuess(game_name: string | null, playerData: PlayerData, guess: Array<number>) {
+	const response: Response = await fetch(getBaseServerPath() + game_name + '/guess_own_team', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(guess)
+		body: JSON.stringify({
+			guess: guess,
+			player: playerData,
+		})
+	});
+	return response;
+}
+
+export async function postGuessOther(game_name: string | null, playerData: PlayerData, guess: Array<number>) {
+	const response: Response = await fetch(getBaseServerPath() + game_name + '/guess_other_team', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			guess: guess,
+			player: playerData,
+		})
 	});
 	return response;
 }
