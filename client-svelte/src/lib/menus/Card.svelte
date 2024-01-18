@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getGame } from '$lib/functions/requests';
+	import { getGame, getScore } from '$lib/functions/requests';
 	import { sleep } from '$lib/functions/helper';
 	import OurCard from './OurCard.svelte';
 	import TheirCard from './TheirCard.svelte';
 	import type { PlayerData } from '$lib/datatypes/playerdata';
-	import type { Game } from '$lib/datatypes/game';
+	import { Game } from '$lib/datatypes/game';
 	import type { OneTeamRound } from '$lib/datatypes/one_team_round';
 	import { json } from '@sveltejs/kit';
 	import type { Round } from '$lib/datatypes/round';
+	import type { Score } from '$lib/datatypes/score';
 
 	let round_state: string | null;
 
@@ -24,6 +25,7 @@
 	let game: Game;
 	let our_round: OneTeamRound;
 	let their_round: OneTeamRound;
+	let scores: Score;
 
 	function setRoundState(new_state: string) {
 		localStorage.setItem('round_state', new_state);
@@ -39,28 +41,36 @@
 	}
 
 	async function readGame() {
-		getGame(game_name)
+		getGame(game_name).then((response) => {
+			if (response.ok) {
+				response.json().then((data) => {
+					game = data;
+					round_count = game.rounds.length - 1;
+
+					players = [];
+					for (var prop in game.players) {
+						players = [...players, data.players[prop] as PlayerData];
+					}
+
+					if (team == 'Red') {
+						cards = data.red_words;
+						our_round = data.rounds[round_count].red_round;
+						their_round = data.rounds[round_count].blue_round;
+					} else {
+						cards = data.blue_words;
+						our_round = data.rounds[round_count].blue_round;
+						their_round = data.rounds[round_count].red_round;
+					}
+
+					updateRoundState();
+				});
+			}
+		});
+
+		getScore(game_name)
 			.then((response) => response.json())
 			.then((data) => {
-				game = data;
-				round_count = game.rounds.length - 1;
-
-				players = [];
-				for (var prop in game.players) {
-					players = [...players, data.players[prop] as PlayerData];
-				}
-
-				if (team == 'Red') {
-					cards = data.red_words;
-					our_round = data.rounds[round_count].red_round;
-					their_round = data.rounds[round_count].blue_round;
-				} else {
-					cards = data.blue_words;
-					our_round = data.rounds[round_count].blue_round;
-					their_round = data.rounds[round_count].red_round;
-				}
-
-				updateRoundState();
+				scores = data;
 			});
 	}
 
@@ -120,12 +130,38 @@
 			{/each}
 		{/if}
 	</div>
+
 	<h2>Words</h2>
 	<div>
 		{#each cards as card}
 			{card} &emsp;
 		{/each}
 	</div>
+
+	<h2>Scores</h2>
+	{#if game && scores}
+		<table class="RedCard">
+			<tr>
+				<td>Interceptions</td>
+				<td>Miscommunications</td>
+			</tr>
+			<tr>
+				<td>{scores.red_interceptions}</td>
+				<td>{scores.red_miscommunications}</td>
+			</tr>
+		</table>
+		<table class="BlueCard">
+			<tr>
+				<td>Interceptions</td>
+				<td>Miscommunications</td>
+			</tr>
+			<tr>
+				<td>{scores.blue_interceptions}</td>
+				<td>{scores.blue_miscommunications}</td>
+			</tr>
+		</table>
+	{/if}
+
 	<h2>Players</h2>
 	{#each players as player}
 		<div class={player.team}>

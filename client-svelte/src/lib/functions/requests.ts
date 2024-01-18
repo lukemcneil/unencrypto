@@ -1,5 +1,5 @@
 import type { Guess } from '$lib/datatypes/guess';
-import type { PlayerData } from '$lib/datatypes/playerdata';
+import { PlayerData } from '$lib/datatypes/playerdata';
 
 function getBaseServerPath(): string | null {
 	return localStorage.getItem('base_server_path');
@@ -51,13 +51,11 @@ export async function postClues(game_name: string | null, playerData: PlayerData
 	return response;
 }
 
-export async function deletePlayerFromGame(game_name: string | null, name: string | null) {
+export async function deletePlayerFromGame(game_name: string | null, name: string | null, team: string, role: string) {
 	const response: Response = await fetch(getBaseServerPath() + game_name + '/exit', {
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			player: name
-		})
+		body: JSON.stringify(new PlayerData(name, team, role))
 	});
 	return response;
 }

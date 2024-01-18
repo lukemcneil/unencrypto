@@ -1,9 +1,6 @@
 export class Score {
-    player: string;
-    score: number;
-
-    constructor(player: string, score: number) {
-        this.player = player;
-        this.score = score;
-    }
+    red_interceptions!: number;
+    blue_interceptions!: number;
+    red_miscommunications!: number;
+    blue_miscommunications!: number;
 }

@@ -49,7 +49,9 @@
 		if (confirm('Do you really want to leave the game?') == true) {
 			const response: Promise<Response> = deletePlayerFromGame(
 				localStorage.getItem('game_name'),
-				localStorage.getItem('name')
+				localStorage.getItem('name'),
+				localStorage.getItem('team'),
+				localStorage.getItem('role')
 			);
 			response.then((response) => {
 				if (response.ok) {
@@ -67,7 +69,9 @@
 		if (confirm('Do you really what to kick ' + player_to_kick + '?') == true) {
 			const response: Promise<Response> = deletePlayerFromGame(
 				localStorage.getItem('game_name'),
-				player_to_kick
+				player_to_kick,
+				localStorage.getItem('team'),
+				localStorage.getItem('role')
 			);
 		}
 	}
@@ -75,7 +79,11 @@
 	function onEndGame() {
 		if (confirm('Do you want to end the game for everybody?')) {
 			const response: Promise<Response> = deleteGame(localStorage.getItem('game_name'));
-			setGameState('join');
+			response.then((response) => {
+				if (response.ok) {
+					setGameState('join');
+				}
+			});
 		}
 	}
 </script>
@@ -117,14 +125,14 @@
 	<div style="padding: 50px;"></div>
 	{#if game_state == 'answer'}
 		<div>
-			<Button text="Leave Game" onClick={onLeave} />
-		</div>
-		<div>
 			<InputField bind:value={player_to_kick} text="player to kick" />
 			<Button text="Kick" onClick={onKick} />
 		</div>
 	{/if}
 	{#if game_state != 'join'}
+		<div>
+			<Button text="Leave Game" onClick={onLeave} />
+		</div>
 		<div>
 			<Button text="End Game" onClick={onEndGame} />
 		</div>
