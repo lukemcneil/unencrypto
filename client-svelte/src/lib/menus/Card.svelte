@@ -125,6 +125,12 @@
 
 					updateRoundState();
 				});
+			} else {
+				response.text().then((text) => {
+					if (text.includes('GameNotFound')) {
+						setGameState('join');
+					}
+				});
 			}
 		});
 

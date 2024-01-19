@@ -37,7 +37,11 @@
 			const response: Promise<Response> = getGame(localStorage.getItem('game_name'));
 			response.then((response) => {
 				if (!response.ok) {
-					setGameState('join');
+					response.text().then((text) => {
+						if (text.includes('GameNotFound')) {
+							setGameState('join');
+						}
+					});
 				}
 			});
 		}
