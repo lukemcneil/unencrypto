@@ -51,7 +51,11 @@
 				<td>{other_team_round.clues ? other_team_round.clues[i] : ''}</td>
 				<td>
 					{#if state == 'guess_other'}
-						<input type="number" bind:value={guess[i]} placeholder="guess" min="2" max="4" />
+						<select bind:value={guess[i]}>
+							{#each [1, 2, 3, 4] as o}
+								<option value={o}>{o}</option>
+							{/each}
+						</select>
 					{:else}
 						{other_team_round.other_team_guess ? other_team_round.other_team_guess[i] : ''}
 					{/if}

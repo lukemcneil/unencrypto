@@ -10,6 +10,7 @@
 	export let is_active_round: boolean;
 	export let game_name: string;
 	export let name: string;
+	export let words: Array<String>;
 
 	let clues: Array<string> = ['', '', ''];
 	let guess: Array<number> = [1, 1, 1];
@@ -61,12 +62,24 @@
 				</td>
 				<td>
 					{#if state == 'guess' && role == 'Decryptor'}
-						<input type="number" bind:value={guess[i]} placeholder="guess" min="2" max="4" />
+						<select bind:value={guess[i]}>
+							{#each words as word, i}
+								<option value={i + 1}>{i + 1} {word}</option>
+							{/each}
+						</select>
 					{:else}
-						{team_round.own_team_guess ? team_round.own_team_guess[i] : ''}
+						{team_round.own_team_guess
+							? team_round.own_team_guess[i].toString() +
+								' ' +
+								words[team_round.own_team_guess[i] - 1]
+							: ''}
 					{/if}
 				</td>
-				<td>{role == 'Encryptor' || state == 'done' || !is_active_round ? c : '?'}</td>
+				<td
+					>{role == 'Encryptor' || state == 'done' || !is_active_round
+						? c.toString() + ' ' + words[c - 1]
+						: '?'}</td
+				>
 			</tr>
 		{/each}
 		{#if state == 'clues' && role == 'Encryptor'}

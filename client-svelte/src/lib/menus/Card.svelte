@@ -185,6 +185,7 @@
 						is_active_round={i == game.rounds.length - 1}
 						game_name={game_name || ''}
 						name={name || ''}
+						words={cards}
 					/>
 					<TheirCard
 						team={team || ''}
