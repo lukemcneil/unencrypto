@@ -56,7 +56,7 @@
 		if (my_team == 'Red') {
 			return 'Blue';
 		} else {
-			return 'Red'
+			return 'Red';
 		}
 	}
 
@@ -82,30 +82,46 @@
 						their_round = data.rounds[round_count].red_round;
 					}
 
+					our_words = new Map([
+						[1, []],
+						[2, []],
+						[3, []],
+						[4, []]
+					]);
+					their_words = new Map([
+						[1, []],
+						[2, []],
+						[3, []],
+						[4, []]
+					]);
 					game.rounds.forEach((round: Round) => {
+						let our: OneTeamRound;
+						let their: OneTeamRound;
 						if (team == 'Red') {
-							round.red_round.code?.forEach((key: number, i) => {
-								console.log(key);
-								if (round.red_round.clues != null) {
-									our_words.get(key)?.push(round.red_round.clues[i]);
-								}
-								if (round.blue_round.clues != null) {
-									their_words.get(key)?.push(round.blue_round.clues[i]);
+							our = round.red_round;
+							their = round.blue_round;
+						} else {
+							our = round.blue_round;
+							their = round.red_round;
+						}
+						if (our.clues && our.own_team_guess) {
+							our.code.forEach((x: number, i: number) => {
+								let clue = our.clues?.at(i);
+								if (clue) {
+									our_words.get(x)?.push(clue);
 								}
 							});
-						} else {
-							round.red_round.code?.forEach((key: number, i) => {
-								if (round.red_round.clues != null) {
-									their_words.get(key)?.push(round.red_round.clues[i]);
-								}
-								if (round.blue_round.clues != null) {
-									our_words.get(key)?.push(round.blue_round.clues[i]);
+						}
+
+						if (their.clues && their.other_team_guess) {
+							their.code.forEach((x: number, i: number) => {
+								let clue = their.clues?.at(i);
+								if (clue) {
+									their_words.get(x)?.push(clue);
 								}
 							});
 						}
 					});
-					our_words = our_words;
-					their_words = their_words;
 
 					updateRoundState();
 				});
@@ -154,7 +170,7 @@
 	<div>
 		{#if game}
 			{#each game.rounds as round, i}
-				<h2>Round {i}</h2>
+				<h3>Round {i}</h3>
 				<div class="center">
 					<OurCard
 						team={team || ''}
@@ -178,83 +194,71 @@
 		{/if}
 	</div>
 
-	<h2>Words</h2>
-	<div>
-		{#each cards as card}
-			{card} &emsp;
-		{/each}
-	</div>
-
+	<h3>Words</h3>
 	<div>
 		{#if game}
 			<div>
 				<table class="center">
-					<tr class='{team}Card'>
+					<tr class="{team}Card">
 						{#each cards as card}
 							<td>{card}</td>
 						{/each}
 					</tr>
-					{#each { length: round_count + 1 } as _, i}
-						<tr>
-							{#each [1, 2, 3, 4] as count}
-								<td>
-									{#if our_words.get(count) != undefined && our_words.get(count)?.length > i}
-										{our_words.get(count)[i]}
-									{/if}
-								</td>
-							{/each}
-						</tr>
-					{/each}
+					<tr>
+						{#each [1, 2, 3, 4] as count}
+							<td>
+								{#if our_words.get(count)}
+									{#each our_words.get(count) as word}
+										{word} <br />
+									{/each}
+								{/if}
+							</td>
+						{/each}
+					</tr>
 				</table>
 			</div>
 			<div>
 				<table class="center">
-					<tr class='{getOtherTeam(team)}Card'>
+					<tr class="{getOtherTeam(team)}Card">
 						{#each cards as card}
 							<td>???</td>
 						{/each}
 					</tr>
-					{#each { length: round_count + 1 } as _, i}
-						<tr>
-							{#each [1, 2, 3, 4] as count}
-								<td>
-									{#if their_words.get(count) != undefined && their_words.get(count)?.length > i}
-										{their_words.get(count)[i]}
-									{/if}
-								</td>
-							{/each}
-						</tr>
-					{/each}
+					<tr>
+						{#each [1, 2, 3, 4] as count}
+							<td>
+								{#if their_words.get(count)}
+									{#each their_words.get(count) as word}
+										{word} <br />
+									{/each}
+								{/if}
+							</td>
+						{/each}
+					</tr>
 				</table>
 			</div>
 		{/if}
 	</div>
 
-	<h2>Scores</h2>
+	<h3>Scores</h3>
 	{#if game && scores}
-		<table class="RedCard center">
+		<table class="center">
 			<tr>
-				<td>Interceptions</td>
-				<td>Miscommunications</td>
+				<td><b>Interceptions</b></td>
+				<td><b>Miscommunications</b></td>
 			</tr>
-			<tr>
+			<tr class="RedCard">
 				<td>{scores.red_interceptions}</td>
 				<td>{scores.red_miscommunications}</td>
 			</tr>
-		</table>
-		<table class="BlueCard center">
-			<tr>
-				<td>Interceptions</td>
-				<td>Miscommunications</td>
-			</tr>
-			<tr>
+			<tr class="BlueCard">
 				<td>{scores.blue_interceptions}</td>
 				<td>{scores.blue_miscommunications}</td>
 			</tr>
 		</table>
 	{/if}
 
-	<h2>Players</h2>
+	<h3>Players</h3>
 	{#each players as player}
 		<div class={player.team}>
 			{player.player}: {player.role}

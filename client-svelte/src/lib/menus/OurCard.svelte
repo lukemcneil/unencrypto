@@ -44,8 +44,8 @@
 </script>
 
 {#if team_round}
-	<table class="{team}Card center">
-		<tr>
+	<table class="center">
+		<tr class="{team}Card">
 			<td>Clue</td>
 			<td>Our Guess</td>
 			<td>Code</td>

@@ -89,6 +89,7 @@
 </script>
 
 <main>
+	<h1>Unencrypto</h1>
 	{#if game_state == 'join'}
 		<Join {setGameState} />
 	{:else if game_state == 'card'}
@@ -99,36 +100,8 @@
 			team={localStorage.getItem('team')}
 			role={localStorage.getItem('role')}
 		/>
-	{:else if game_state == 'answer'}
-		<Answer
-			{setGameState}
-			name={localStorage.getItem('name')}
-			game_name={localStorage.getItem('game_name')}
-		/>
-	{:else if game_state == 'answer_wait'}
-		<AnswerWait {setGameState} game_name={localStorage.getItem('game_name')} />
-	{:else if game_state == 'guess'}
-		<Guess
-			{setGameState}
-			name={localStorage.getItem('name')}
-			game_name={localStorage.getItem('game_name')}
-		/>
-	{:else if game_state == 'guess_wait'}
-		<GuessWait {setGameState} game_name={localStorage.getItem('game_name')} />
-	{:else if game_state == 'results'}
-		<Results
-			{setGameState}
-			name={localStorage.getItem('name')}
-			game_name={localStorage.getItem('game_name')}
-		/>
 	{/if}
 	<div style="padding: 50px;"></div>
-	{#if game_state == 'answer'}
-		<div>
-			<InputField bind:value={player_to_kick} text="player to kick" />
-			<Button text="Kick" onClick={onKick} />
-		</div>
-	{/if}
 	{#if game_state != 'join'}
 		<div>
 			<Button text="Leave Game" onClick={onLeave} />

@@ -40,8 +40,8 @@
 </script>
 
 {#if other_team_round}
-	<table class="{other_team}Card center">
-		<tr>
+	<table class="center">
+		<tr class="{other_team}Card">
 			<td>Clue</td>
 			<td>Our Guess</td>
 			<td>Code</td>
