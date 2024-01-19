@@ -170,7 +170,7 @@
 	<div>
 		{#if game}
 			{#each game.rounds as round, i}
-				<h3>Round {i}</h3>
+				<h3>Round {i + 1}</h3>
 				<div class="center">
 					<OurCard
 						team={team || ''}
@@ -220,8 +220,8 @@
 			<div>
 				<table class="center">
 					<tr class="{getOtherTeam(team)}Card">
-						{#each cards as card}
-							<td>???</td>
+						{#each cards as card, i}
+							<td>{i + 1}</td>
 						{/each}
 					</tr>
 					<tr>

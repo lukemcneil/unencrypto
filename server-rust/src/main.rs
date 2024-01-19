@@ -7,6 +7,7 @@ mod word_lookup;
 
 use parking_lot::Mutex;
 use rocket::http::Method;
+use rocket::options;
 use rocket::{
     self,
     config::{Environment, LoggingLevel},
@@ -62,6 +63,11 @@ fn game(game_id: String, games: State<Games>) -> Result<Json<Game>> {
     Ok(Json(game.clone()))
 }
 
+#[options("/game/<game_id>")]
+fn options_game(game_id: String) -> String {
+    game_id
+}
+
 #[post("/game/<game_id>/clues", data = "<clues>")]
 fn clues(game_id: String, clues: Json<CluesData>, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
@@ -98,6 +104,11 @@ fn exit_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> 
     game.remove_player(player.player)
 }
 
+#[options("/game/<game_id>/exit")]
+fn options_exit(game_id: String) -> String {
+    game_id
+}
+
 #[delete("/game/<game_id>")]
 fn delete_game(game_id: String, games: State<Games>) -> Result<()> {
     let mut games = games.lock();
@@ -110,6 +121,11 @@ fn get_score(game_id: String, games: State<Games>) -> Result<Json<Score>> {
     let mut games = games.lock();
     let game = games.get(&game_id)?.clone();
     Ok(Json(game.get_score()))
+}
+
+#[options("/game/<game_id>/score")]
+fn options_score(game_id: String) -> String {
+    game_id
 }
 
 fn rocket(opt: Option<Opt>) -> rocket::Rocket {
@@ -166,6 +182,9 @@ fn rocket(opt: Option<Opt>) -> rocket::Rocket {
                 exit_game,
                 delete_game,
                 get_score,
+                options_game,
+                options_score,
+                options_exit
             ],
         )
         .manage(Mutex::new(words))

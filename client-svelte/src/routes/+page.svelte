@@ -43,8 +43,6 @@
 		}
 	});
 
-	let player_to_kick: string;
-
 	function onLeave() {
 		if (confirm('Do you really want to leave the game?') == true) {
 			const response: Promise<Response> = deletePlayerFromGame(
@@ -54,25 +52,8 @@
 				localStorage.getItem('role')
 			);
 			response.then((response) => {
-				if (response.ok) {
-					setGameState('join');
-				} else {
-				}
+				setGameState('join');
 			});
-		}
-	}
-
-	function onKick() {
-		if (player_to_kick.length == 0) {
-			return;
-		}
-		if (confirm('Do you really what to kick ' + player_to_kick + '?') == true) {
-			const response: Promise<Response> = deletePlayerFromGame(
-				localStorage.getItem('game_name'),
-				player_to_kick,
-				localStorage.getItem('team'),
-				localStorage.getItem('role')
-			);
 		}
 	}
 
@@ -80,9 +61,7 @@
 		if (confirm('Do you want to end the game for everybody?')) {
 			const response: Promise<Response> = deleteGame(localStorage.getItem('game_name'));
 			response.then((response) => {
-				if (response.ok) {
-					setGameState('join');
-				}
+				setGameState('join');
 			});
 		}
 	}
