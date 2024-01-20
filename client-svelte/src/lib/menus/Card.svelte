@@ -215,8 +215,8 @@
 						{#each [1, 2, 3, 4] as count}
 							<td>
 								{#if our_words.get(count)}
-									{#each our_words.get(count) as word}
-										{word} <br />
+									{#each our_words.get(count) as word, i}
+										{word}{i == our_words.get(count)?.length - 1 ? '' : ','} <br />
 									{/each}
 								{/if}
 							</td>
@@ -235,8 +235,8 @@
 						{#each [1, 2, 3, 4] as count}
 							<td>
 								{#if their_words.get(count)}
-									{#each their_words.get(count) as word}
-										{word} <br />
+									{#each their_words.get(count) as word, i}
+										{word}{i == their_words.get(count)?.length - 1 ? '' : ','} <br />
 									{/each}
 								{/if}
 							</td>

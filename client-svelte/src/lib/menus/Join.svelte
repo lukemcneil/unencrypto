@@ -58,14 +58,6 @@
 		<InputField bind:value={game_name} text="enter the game room" />
 	</div>
 
-	<div>
-		<Button text="Join Game" onClick={onClickJoinGame} />
-	</div>
-
-	<div>
-		<Button text="Create Game" onClick={onClickCreateGame} />
-	</div>
-
 	<h3>Choose Team Color</h3>
 	<div>
 		<label>
@@ -88,8 +80,16 @@
 
 		<label>
 			<input type="radio" bind:group={role} value={'Decryptor'} />
-			Decryptor
+			Guesser
 		</label>
+	</div>
+
+	<div>
+		<Button text="Join Game" onClick={onClickJoinGame} />
+	</div>
+
+	<div>
+		<Button text="Create Game" onClick={onClickCreateGame} />
 	</div>
 </main>
 
