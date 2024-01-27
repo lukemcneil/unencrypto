@@ -23,6 +23,8 @@
 			return 'guess';
 		} else if (!other_team_round.other_team_guess && other_team_round.clues) {
 			return 'guess_other';
+		} else if (!other_team_round.other_team_guess && !other_team_round.clues) {
+			return 'waiting';
 		} else {
 			return 'done';
 		}
